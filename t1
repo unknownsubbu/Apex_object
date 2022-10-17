@@ -1,0 +1,52 @@
+trigger demotask on Booking__c (before insert) {
+    if(trigger.isBefore && trigger.isInsert){
+        
+         for(Booking__c bookingValue : Trigger.new)
+   {
+       if(bookingValue.RecordType.DeveloperName=='Personal')
+       {
+           if(bookingValue.Distance_KM_s__c>15 && bookingValue.Distance_KM_s__c<=150)
+        {
+           Double dFare=(((bookingValue.Distance_KM_s__c-15)*2)+(15)+((bookingValue.Distance_KM_s__c)/50)*60)*0.07; 
+            bookingValue.Expected_Fare__c=dFare;
+            bookingValue.Actual_Fare__c= dFare+(dFare*0.18);
+            //BookingList.add(bookingValue);
+        }
+        else if(bookingValue.Distance_KM_s__c <=15)
+        {
+            Double dFare=((bookingValue.Distance_KM_s__c*1)+((bookingValue.Distance_KM_s__c)/50)*60)*0.07;
+             bookingValue.Expected_Fare__c=dFare;
+            bookingValue.Actual_Fare__c=dFare+(dFare*0.18);
+            //BookingList.add(bookingValue);
+        }
+        else if(bookingValue.Distance_KM_s__c>150)
+        {
+            bookingValue.addError('Booking Not Allowed');
+        }
+   }
+       //
+       else
+       {
+           if(bookingValue.Distance_KM_s__c>15 && bookingValue.Distance_KM_s__c<=150)
+        {
+           Double dFare=(((bookingValue.Distance_KM_s__c-15)*2)+(15)+((bookingValue.Distance_KM_s__c)/50)*60); 
+            bookingValue.Expected_Fare__c=dFare;
+            bookingValue.Actual_Fare__c= dFare+(dFare*0.18);
+            //BookingList.add(bookingValue);
+        }
+        else if(bookingValue.Distance_KM_s__c <=15)
+        {
+            Double dFare=(bookingValue.Distance_KM_s__c*1)+((bookingValue.Distance_KM_s__c)/50)*60;
+             bookingValue.Expected_Fare__c=dFare;
+            bookingValue.Actual_Fare__c=dFare+(dFare*0.18);
+            //BookingList.add(bookingValue);
+        }
+        else if(bookingValue.Distance_KM_s__c>150)
+        {
+            bookingValue.addError('Booking Not Allowed');
+        }
+       }
+    }
+   }
+     
+    }
