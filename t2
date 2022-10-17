@@ -1,0 +1,95 @@
+File
+
+Edit
+
+Debug
+
+Test
+
+Workspace
+
+Help
+
+<
+
+>
+
+Code Coverage: None
+56
+
+Go To
+32
+            Double EarnPoint=(sum*0.6);
+33
+            objCustValues.Earned_Points__c=EarnPoint;
+34
+        }
+35
+                objKm.add(objCustValues);
+36
+                
+37
+                //email feild
+38
+      if(objCustValues.Earned_Points__c>30)
+39
+        {
+40
+             Code='VOGOSUPERRIDE30';
+41
+        }
+42
+         if(objCustValues.Earned_Points__c>60)
+43
+        {
+44
+             Code='VOGOSUPERRIDE60';
+45
+        }
+46
+         if(objCustValues.Earned_Points__c>90)
+47
+        {
+48
+             Code='VOGOSUPERRIDE90';
+49
+        }
+50
+        Messaging.SingleEmailMessage message = new Messaging.SingleEmailMessage();
+51
+        message.toAddresses = new String[] {objCustValues.Email};
+52
+        message.optOutPolicy = 'FILTER';
+53
+        message.subject = 'Wooh! The ride has been Completed';
+54
+        message.plainTextBody = ' Hi '+objCustValues.Name+ '\n'+ 'Thank you for using vogo ride,'+'\n'+' Earned Points: '+objCustValues.Earned_Points__c + '\n'+' Use the code '+Code+'  For your next ride.'+'\n'+' Thank you,'+'\n'+'VOGO';
+55
+        Messaging.SingleEmailMessage[] messages =  new List<Messaging.SingleEmailMessage> {message};
+56
+        Messaging.SendEmailResult[] results = Messaging.sendEmail(messages);
+57
+       
+58
+      if (results[0].success) {
+59
+         System.debug('The email was sent successfully.');
+60
+            }
+61
+    else {
+62
+    System.debug('The email failed to send: '+ results[0].errors[0].message);
+63
+           }
+64
+         }//1st for loop ends
+65
+        system.debug(objKm);
+66
+        update objKm;
+67
+    }
+68
+}
+ 
