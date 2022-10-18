@@ -1,95 +1,68 @@
-File
-
-Edit
-
-Debug
-
-Test
-
-Workspace
-
-Help
-
-<
-
->
-
-Code Coverage: None
-56
-
-Go To
-32
-            Double EarnPoint=(sum*0.6);
-33
-            objCustValues.Earned_Points__c=EarnPoint;
-34
-        }
-35
-                objKm.add(objCustValues);
-36
-                
-37
-                //email feild
-38
-      if(objCustValues.Earned_Points__c>30)
-39
+trigger EndRide on Booking__c (after insert) {
+    if(trigger.isAfter && trigger.isInsert){
+      double sum=0;
+       String Code;
+        set<id> objBookIdSet = new set<id>();
+        for(Booking__c  objBookId:trigger.new)
         {
-40
-             Code='VOGOSUPERRIDE30';
-41
+          objBookIdSet.add(objBookId.Customer__c);
         }
-42
-         if(objCustValues.Earned_Points__c>60)
-43
-        {
-44
-             Code='VOGOSUPERRIDE60';
-45
-        }
-46
-         if(objCustValues.Earned_Points__c>90)
-47
-        {
-48
-             Code='VOGOSUPERRIDE90';
-49
-        }
-50
-        Messaging.SingleEmailMessage message = new Messaging.SingleEmailMessage();
-51
-        message.toAddresses = new String[] {objCustValues.Email};
-52
-        message.optOutPolicy = 'FILTER';
-53
-        message.subject = 'Wooh! The ride has been Completed';
-54
-        message.plainTextBody = ' Hi '+objCustValues.Name+ '\n'+ 'Thank you for using vogo ride,'+'\n'+' Earned Points: '+objCustValues.Earned_Points__c + '\n'+' Use the code '+Code+'  For your next ride.'+'\n'+' Thank you,'+'\n'+'VOGO';
-55
-        Messaging.SingleEmailMessage[] messages =  new List<Messaging.SingleEmailMessage> {message};
-56
-        Messaging.SendEmailResult[] results = Messaging.sendEmail(messages);
-57
        
-58
+        //for(Booking__c objBookValues : Trigger.new)
+       
+        List<Contact> objKm= new List<Contact>();
+       
+            for(Contact objCustValues:[Select id, Name,total_Customer_KMs__c,Earned_Points__c,Email,(Select id,Distance_KM_s__c from Bookings__r) From Contact where id in : objBookIdSet])
+            {
+                for(Booking__c ObjBooKValue: objCustValues.Bookings__r)
+                {
+                   sum=ObjBooKValue.Distance_KM_s__c;
+                    objCustValues.total_Customer_KMs__c=sum;
+                    //System.debug(sum);
+                   // Integer totalOrder=objCustValues.Bookings__r.size();
+                   
+                }
+         if(sum>10 )
+        {
+           Double EarnPoint=((sum-10)*1.2)+(sum*0.6);
+            objCustValues.Earned_Points__c=EarnPoint;
+        }
+        else if(sum<=10)
+        {
+            Double EarnPoint=(sum*0.6);
+            objCustValues.Earned_Points__c=EarnPoint;
+        }
+                objKm.add(objCustValues);
+               
+                //email feild
+      if(objCustValues.Earned_Points__c>30)
+        {
+             Code='VOGOSUPERRIDE30';
+        }
+         if(objCustValues.Earned_Points__c>60)
+        {
+             Code='VOGOSUPERRIDE60';
+        }
+         if(objCustValues.Earned_Points__c>90)
+        {
+             Code='VOGOSUPERRIDE90';
+        }
+        Messaging.SingleEmailMessage message = new Messaging.SingleEmailMessage();
+message.toAddresses = new String[] {objCustValues.Email};
+message.optOutPolicy = 'FILTER';
+message.subject = 'Wooh! The ride has been Completed';
+message.plainTextBody = ' Hi '+objCustValues.Name+ '\n'+ 'Thank you for using vogo ride,'+'\n'+' Earned Points: '+objCustValues.Earned_Points__c + '\n'+' Use the code '+Code+'  For your next ride.'+'\n'+' Thank you,'+'\n'+'VOGO';
+Messaging.SingleEmailMessage[] messages =  new List<Messaging.SingleEmailMessage> {message};
+        Messaging.SendEmailResult[] results = Messaging.sendEmail(messages);
+       
       if (results[0].success) {
-59
          System.debug('The email was sent successfully.');
-60
-            }
-61
-    else {
-62
-    System.debug('The email failed to send: '+ results[0].errors[0].message);
-63
-           }
-64
-         }//1st for loop ends
-65
-        system.debug(objKm);
-66
-        update objKm;
-67
-    }
-68
 }
- 
+    else {
+    System.debug('The email failed to send: '+ results[0].errors[0].message);
+           }
+         }//1st for loop ends
+        system.debug(objKm);
+        update objKm;
+    }
+}
